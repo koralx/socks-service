@@ -2,21 +2,21 @@ package com.koral.sockservice.controller;
 
 import com.koral.sockservice.dto.SocksRequestDto;
 import com.koral.sockservice.service.SocksService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Map;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class SocksControllerTest {
     @Mock
     private SocksService socksService;
@@ -80,7 +80,7 @@ public class SocksControllerTest {
         ResponseEntity<Map<String, Object>> response = socksController.getSocks(null, null, null);
 
         assertEquals(200, response.getStatusCodeValue());
-        assertEquals(0, response.getBody().get("total"));
+        assertEquals(0, Objects.requireNonNull(response.getBody()).get("total"));
         verify(socksService, times(1)).getSocks(null, null, null);
     }
 

@@ -2,25 +2,22 @@ package com.koral.sockservice.util;
 
 import com.koral.sockservice.exception.ParserException;
 import com.koral.sockservice.model.Socks;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@SpringBootTest
+import static org.junit.jupiter.api.Assertions.*;
+
+@ExtendWith(MockitoExtension.class)
 public class XlsxParserTest {
 
     @InjectMocks
@@ -51,7 +48,7 @@ public class XlsxParserTest {
                 new Socks("Желтый",16, 33 ),
                 new Socks("Синий",42, 1)
         ));
-;
+
         byte[] fileXlsxContent = null;
         try {
             fileXlsxContent = Files.readAllBytes(Paths.get("src/test/resources/sample_data/socks_test.xlsx"));
@@ -68,7 +65,8 @@ public class XlsxParserTest {
 
         ArrayList<Socks> excelParsedSocksArrayList = xlsxSocksParser.parseSocks(mockXlsxMultipartFile);
 
-        assertTrue(Arrays.equals(mockSocksArrayList.toArray(), excelParsedSocksArrayList.toArray()));
+        assertArrayEquals(mockSocksArrayList.toArray(), excelParsedSocksArrayList.toArray());
+
     }
 
     @Test

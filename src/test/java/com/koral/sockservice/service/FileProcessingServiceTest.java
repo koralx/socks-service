@@ -8,9 +8,9 @@ import com.koral.sockservice.util.XlsxSocksParser;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,8 +24,9 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class FileProcessingServiceTest {
     @InjectMocks
     private FileProcessingService fileProcessingService;
@@ -130,7 +131,6 @@ public class FileProcessingServiceTest {
     @Test
     void processFile_UploadUndefinedFile_ProcessingFileException() {
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Sheet1");
 
         MockMultipartFile mockMultipartFile = null;
         try {
@@ -143,9 +143,6 @@ public class FileProcessingServiceTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        when(xlsxSocksParser.parseSocks(any(MultipartFile.class)))
-                .thenReturn(new ArrayList<>(List.of(new Socks("Желтый", 36, 68), new Socks("Синий", 89, 56))));
 
         MockMultipartFile finalMockMultipartFile = mockMultipartFile;
         Exception thrown = assertThrows(ProcessingFileException.class, () ->
@@ -160,12 +157,8 @@ public class FileProcessingServiceTest {
 
         MockMultipartFile mockMultipartFile = new MockMultipartFile("file", "test.xlsx", "application/vnd.ms-excel", (byte[]) null);
 
-        when(xlsxSocksParser.parseSocks(any(MultipartFile.class)))
-                .thenReturn(new ArrayList<>(List.of(new Socks("Желтый", 36, 68), new Socks("Синий", 89, 56))));
-
-        MockMultipartFile finalMockMultipartFile = mockMultipartFile;
         Exception thrown = assertThrows(ProcessingFileException.class, () ->
-                fileProcessingService.processFile(finalMockMultipartFile)
+                fileProcessingService.processFile(mockMultipartFile)
         );
 
         assertTrue(thrown.getMessage().contains("Отствует файл"));

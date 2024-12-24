@@ -3,8 +3,8 @@ package com.koral.sockservice.util;
 import com.koral.sockservice.exception.ParserException;
 import com.koral.sockservice.model.Socks;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.*;
@@ -13,12 +13,13 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class CsvParserTest {
 
     @InjectMocks
@@ -57,13 +58,13 @@ public class CsvParserTest {
             e.printStackTrace();
         }
 
-        byte[] csvConvertedBytes = csvFileData.getBytes(Charset.forName("Windows-1251"));
+        byte[] csvConvertedBytes = Objects.requireNonNull(csvFileData).getBytes(Charset.forName("Windows-1251"));
 
         MockMultipartFile mockMultipartFile = new MockMultipartFile("file", "test.csv", "text/csv", csvConvertedBytes);
 
         ArrayList<Socks> csvParsedSocksArrayList = csvSocksParser.parseSocks(mockMultipartFile);
 
-        assertTrue(Arrays.equals(mockSocksArrayList.toArray(), csvParsedSocksArrayList.toArray()));
+        assertArrayEquals(mockSocksArrayList.toArray(), csvParsedSocksArrayList.toArray());
     }
 
     @Test
