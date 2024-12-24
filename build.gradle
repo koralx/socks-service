@@ -32,8 +32,12 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     runtimeOnly 'org.postgresql:postgresql'
+
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation group: 'org.junit.platform', name: 'junit-platform-suite-api', version: '1.11.4'
+
     testImplementation 'org.mockito:mockito-core'
+
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

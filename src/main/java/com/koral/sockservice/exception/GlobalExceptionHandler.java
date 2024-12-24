@@ -15,4 +15,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleParserException(ParserException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
+    @ExceptionHandler(ProcessingFileException.class)
+    public ResponseEntity<String> handleProcessingFileException(ProcessingFileException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 }

@@ -10,27 +10,30 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Objects;
 
 @Component
 public class CsvSocksParser implements SocksParser {
 
     private final Logger logger = LoggerFactory.getLogger(CsvSocksParser.class);
 
-    @SneakyThrows
     public ArrayList<Socks> parseSocks(MultipartFile multipartFile) {
 
+        logger.info("Файл: " + multipartFile.getOriginalFilename());
+        logger.info("Размер файла: " + multipartFile.getSize());
+        logger.info("Тип содержимого: " + multipartFile.getContentType());
+
         if (multipartFile.isEmpty()) {
-            throw new ParserException("Файл пустой");
+            throw new ParserException("Файл пустой.");
         }
 
-        if (!multipartFile.getOriginalFilename().endsWith(".csv")) {
+        if (!Objects.requireNonNull(multipartFile.getOriginalFilename()).endsWith(".csv")) {
             throw new ParserException("Неподдерживаемый формат файла. Используйте .csv");
         }
 
         ArrayList<Socks> parsedData = new ArrayList<>();
 
-        InputStream inputStream = multipartFile.getInputStream();
-        try(BufferedReader in = new BufferedReader(new InputStreamReader(inputStream, "Windows-1251"))) {
+        try(BufferedReader in = new BufferedReader(new InputStreamReader(multipartFile.getInputStream(), "Windows-1251"))) {
             logger.info("Начало обработки файла {}", multipartFile.getOriginalFilename());
             String line = in.readLine();
 
