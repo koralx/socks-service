@@ -12,20 +12,20 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Objects;
 
 @Component
-public class ExcelSocksParser implements SocksParser{
+public class XlsxSocksParser implements SocksParser{
 
-    private final Logger logger = LoggerFactory.getLogger(ExcelSocksParser.class);
+    private final Logger logger = LoggerFactory.getLogger(XlsxSocksParser.class);
 
-    @SneakyThrows
     public ArrayList<Socks> parseSocks(MultipartFile multipartFile) {
 
         if (multipartFile.isEmpty()) {
             throw new ParserException("Файл пустой");
         }
 
-        if (!multipartFile.getOriginalFilename().endsWith(".xlsx")) {
+        if (!Objects.requireNonNull(multipartFile.getOriginalFilename()).endsWith(".xlsx")) {
             throw new ParserException("Неподдерживаемый формат файла. Используйте .xlsx");
         }
 

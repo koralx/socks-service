@@ -4,7 +4,7 @@ import com.koral.sockservice.exception.ProcessingFileException;
 import com.koral.sockservice.model.Socks;
 import com.koral.sockservice.repository.SocksRepository;
 import com.koral.sockservice.util.CsvSocksParser;
-import com.koral.sockservice.util.ExcelSocksParser;
+import com.koral.sockservice.util.XlsxSocksParser;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,29 +18,36 @@ public class FileProcessingService {
 
     private final SocksRepository socksRepository;
 
-    private final CsvSocksParser csvParser;
-    private final ExcelSocksParser excelParser;
+    private final CsvSocksParser csvSocksParser;
+    private final XlsxSocksParser xlsxSocksParser;
 
     private final Logger logger = Logger.getLogger(FileProcessingService.class.getName());
 
-    public void processFile(MultipartFile file) throws Exception {
+    public ArrayList<Socks> processFile(MultipartFile file) {
         String fileName = file.getOriginalFilename();
         logger.info("Начало обработки файла: " + fileName);
 
+        logger.info("Файл: " + file.getOriginalFilename());
+        logger.info("Размер файла: " + file.getSize());
+        logger.info("Тип содержимого: " + file.getContentType());
+
+        if (file.getSize() == 0 || file.isEmpty()) {
+            throw new ProcessingFileException("Отствует файл или он пустой.");
+        }
+
         if (fileName == null || fileName.isEmpty())
-            throw new ProcessingFileException("Файл не может иметь пустое название.");
+            throw new ProcessingFileException("Файл не может быть без названия.");
 
         if (fileName.endsWith(".csv") == fileName.endsWith(".xlsx"))
-            throw new ProcessingFileException("Поддерживаются только .xlsx и .csv форматы файлов.");
-
+            throw  new ProcessingFileException("Поддерживаются только .xlsx и .csv форматы файлов.");
 
         ArrayList<Socks> parsedSocksList = null;
 
         if (fileName.endsWith(".csv"))
-            parsedSocksList = csvParser.parseSocks(file);
+            parsedSocksList = csvSocksParser.parseSocks(file);
 
         if (fileName.endsWith(".xlsx"))
-            parsedSocksList = excelParser.parseSocks(file);
+            parsedSocksList = xlsxSocksParser.parseSocks(file);
 
         if (parsedSocksList == null)
             throw new ProcessingFileException("Не удалось извлечь данные из файла.");
@@ -52,5 +59,6 @@ public class FileProcessingService {
             socksRepository.save(socks);
         }
 
+        return parsedSocksList;
     }
 }

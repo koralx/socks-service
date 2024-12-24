@@ -2,13 +2,14 @@ package com.koral.sockservice.util;
 
 import com.koral.sockservice.exception.ParserException;
 import com.koral.sockservice.model.Socks;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 
-import java.io.*;
-
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -16,16 +17,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-public class CsvParserTest {
+public class XlsxParserTest {
 
     @InjectMocks
-    CsvSocksParser csvSocksParser;
+    XlsxSocksParser xlsxSocksParser;
 
     @Test
-    public void parseSocks_getParsedCsvAsArrayList_success() {
+    public void parseSocks_getParsedXlsxAsArrayList_success() {
+
         ArrayList<Socks> mockSocksArrayList = new ArrayList<>(List.of(
                 new Socks("Желтый",36, 68 ),
                 new Socks("Синий",89, 56 ),
@@ -48,54 +51,54 @@ public class CsvParserTest {
                 new Socks("Желтый",16, 33 ),
                 new Socks("Синий",42, 1)
         ));
-
-
-        String csvFileData = null;
+;
+        byte[] fileXlsxContent = null;
         try {
-            csvFileData = Files.readString(Paths.get("src/test/resources/sample_data/socks_test.csv"), Charset.forName("Windows-1251"));
+            fileXlsxContent = Files.readAllBytes(Paths.get("src/test/resources/sample_data/socks_test.xlsx"));
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
-        byte[] csvConvertedBytes = csvFileData.getBytes(Charset.forName("Windows-1251"));
+        MockMultipartFile mockXlsxMultipartFile = new MockMultipartFile(
+                "file",
+                "socks_test.xlsx",
+                "application/vnd.ms-excel",
+                fileXlsxContent
+        );
 
-        MockMultipartFile mockMultipartFile = new MockMultipartFile("file", "test.csv", "text/csv", csvConvertedBytes);
+        ArrayList<Socks> excelParsedSocksArrayList = xlsxSocksParser.parseSocks(mockXlsxMultipartFile);
 
-        ArrayList<Socks> csvParsedSocksArrayList = csvSocksParser.parseSocks(mockMultipartFile);
-
-        assertTrue(Arrays.equals(mockSocksArrayList.toArray(), csvParsedSocksArrayList.toArray()));
+        assertTrue(Arrays.equals(mockSocksArrayList.toArray(), excelParsedSocksArrayList.toArray()));
     }
 
     @Test
     public void parseSocks_emptyFile_ExceptionParse() {
-        String csvFileData = null;
-        try {
-            csvFileData = Files.readString(Paths.get("src/test/resources/sample_data/empty_file.csv"), Charset.forName("Windows-1251"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        byte[] fileXlsxEmptyContent = null;
 
-        byte[] csvConvertedBytes = csvFileData.getBytes(Charset.forName("Windows-1251"));
-
-        MockMultipartFile mockMultipartFile = new MockMultipartFile("file", "test.csv", "text/csv", csvConvertedBytes);
+        MockMultipartFile mockXlsxMultipartFile = new MockMultipartFile(
+                "file",
+                "empty_file.xlsx",
+                "application/vnd.ms-excel",
+                fileXlsxEmptyContent
+        );
 
         Exception thrown = assertThrows(ParserException.class, () ->
-                csvSocksParser.parseSocks(mockMultipartFile)
+                xlsxSocksParser.parseSocks(mockXlsxMultipartFile)
         );
+
         assertTrue(thrown.getMessage().contains("Файл пустой"));
     }
 
     @Test
     public void parseSocks_unsupportedFileFormat_ExceptionParse() {
-        String csvFileData = "some bytes";
+        String xlsxFileData = "some bytes";
 
-        MockMultipartFile mockMultipartFile = new MockMultipartFile("file", "test.unknown_type", "text/csv", csvFileData.getBytes());
+        MockMultipartFile mockMultipartFile = new MockMultipartFile("file", "test.unknown_type", "text/csv", xlsxFileData.getBytes());
 
         Exception thrown = assertThrows(ParserException.class, () ->
-                csvSocksParser.parseSocks(mockMultipartFile)
+                xlsxSocksParser.parseSocks(mockMultipartFile)
         );
 
         assertTrue(thrown.getMessage().contains("Неподдерживаемый формат файла"));
     }
-
 }
