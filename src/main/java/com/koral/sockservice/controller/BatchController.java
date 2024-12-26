@@ -26,7 +26,7 @@ public class BatchController {
             fileProcessingService.processFile(file);
             return ResponseEntity.ok("Данные успешно загружены.");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error processing file: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Ошибка обработки файла: " + e.getMessage());
         }
     }
 }

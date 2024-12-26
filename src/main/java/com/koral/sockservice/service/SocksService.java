@@ -4,8 +4,10 @@ import com.koral.sockservice.dto.SocksRequestDto;
 import com.koral.sockservice.model.Socks;
 import com.koral.sockservice.exception.CustomException;
 import com.koral.sockservice.repository.SocksRepository;
-import jakarta.transaction.Transactional;
+
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +22,7 @@ public class SocksService {
         this.socksRepository = socksRepository;
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void registerIncome(SocksRequestDto requestDto) {
         Socks socks = socksRepository.findByColorAndCottonPart(requestDto.getColor(), requestDto.getCottonPart())
                 .orElse(new Socks(requestDto.getColor(), requestDto.getCottonPart(), 0));
@@ -28,13 +30,13 @@ public class SocksService {
         socksRepository.save(socks);
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void registerOutcome(SocksRequestDto requestDto) {
         Socks socks = socksRepository.findByColorAndCottonPart(requestDto.getColor(), requestDto.getCottonPart())
-                .orElseThrow(() -> new CustomException("Socks not found"));
+                .orElseThrow(() -> new CustomException("Партия с задаными параметрами не найдена."));
 
         if (socks.getQuantity() < requestDto.getQuantity()) {
-            throw new CustomException("Not enough socks in stock");
+            throw new CustomException("Недостаточно носков на складе.");
         }
 
         socks.setQuantity(socks.getQuantity() - requestDto.getQuantity());
@@ -44,7 +46,8 @@ public class SocksService {
     @Transactional()
     public Map<String, Object> getSocks(String color, String operation, Integer cottonPart) {
         Map<String, Object> result = new HashMap<>();
-        Long total = socksRepository.countByFilter(color, operation, cottonPart);
+        Long total = 0L;
+        total = socksRepository.countByFilter(color, operation, cottonPart);
         result.put("total", total);
         return result;
     }
@@ -52,7 +55,7 @@ public class SocksService {
     @Transactional
     public void updateSocks(Long id, SocksRequestDto requestDto) {
         Socks socks = socksRepository.findById(id)
-                .orElseThrow(() -> new CustomException("Socks not found"));
+                .orElseThrow(() -> new CustomException("Партия с задаными параметрами не найдена."));
 
         socks.setColor(requestDto.getColor());
         socks.setCottonPart(requestDto.getCottonPart());

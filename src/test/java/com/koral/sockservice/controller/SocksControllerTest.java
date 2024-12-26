@@ -33,7 +33,7 @@ public class SocksControllerTest {
         ResponseEntity<String> response = socksController.registerIncome(requestDto);
 
         assertEquals(200, response.getStatusCodeValue());
-        assertEquals("Income registered successfully.", response.getBody());
+        assertEquals("Регистрация прихода партии выполнена успешно.", response.getBody());
         verify(socksService, times(1)).registerIncome(any(SocksRequestDto.class));
     }
 
@@ -45,7 +45,7 @@ public class SocksControllerTest {
         ResponseEntity<String> response = socksController.registerOutcome(requestDto);
 
         assertEquals(200, response.getStatusCodeValue());
-        assertEquals("Outcome registered successfully.", response.getBody());
+        assertEquals("Регистрация ухода партии выполнена успешно.", response.getBody());
         verify(socksService, times(1)).registerOutcome(requestDto);
     }
 
@@ -69,7 +69,7 @@ public class SocksControllerTest {
         ResponseEntity<String> response = socksController.updateSocks(1L, requestDto);
 
         assertEquals(200, response.getStatusCodeValue());
-        assertEquals("Socks updated successfully.", response.getBody());
+        assertEquals("Обновление партии выполнено успешно.", response.getBody());
         verify(socksService, times(1)).updateSocks(1L, requestDto);
     }
 

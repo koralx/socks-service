@@ -19,14 +19,14 @@ public class SocksController {
     @PostMapping("/income")
     public ResponseEntity<String> registerIncome(@RequestBody SocksRequestDto requestDto) {
         socksService.registerIncome(requestDto);
-        return ResponseEntity.ok("Income registered successfully.");
+        return ResponseEntity.ok("Регистрация прихода партии выполнена успешно.");
     }
 
     // Регистрация отпуска носков
     @PostMapping("/outcome")
     public ResponseEntity<String> registerOutcome(@RequestBody SocksRequestDto requestDto) {
         socksService.registerOutcome(requestDto);
-        return ResponseEntity.ok("Outcome registered successfully.");
+        return ResponseEntity.ok("Регистрация ухода партии выполнена успешно.");
     }
 
     // Получение общего количества носков с фильтрацией
@@ -42,6 +42,6 @@ public class SocksController {
     @PutMapping("/{id}")
     public ResponseEntity<String> updateSocks(@PathVariable Long id, @RequestBody SocksRequestDto requestDto) {
         socksService.updateSocks(id, requestDto);
-        return ResponseEntity.ok("Socks updated successfully.");
+        return ResponseEntity.ok("Обновление партии выполнено успешно.");
     }
 }
